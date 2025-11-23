@@ -15,3 +15,18 @@ Planned Steps:
 - Define the momentum calculation algorithm
 - Create a basic architecture diagram
 - Begin development once the Basys3 arrives
+
+- ## Roadmap
+
+- [x] Create GitHub repository  
+- [x] Add initial README  
+- [x] Add basic project specification (version 0)  
+- [ ] Define initial momentum formula  
+- [ ] Create architecture diagram  
+- [ ] Design first FPGA modules (clock divider, input unit)  
+- [ ] Start Basys3 experiments when board arrives  
+- [ ] Build momentum calculator in VHDL  
+- [ ] Add simulation testbench  
+- [ ] Integrate modules into full system  
+- [ ] Final testing on hardware  
+
