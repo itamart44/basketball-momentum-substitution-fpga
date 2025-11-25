@@ -109,25 +109,26 @@ Presents system recommendations to the user:
 ---
 
 ## Block Diagram
+
 ```mermaid
 flowchart TD
 
     title["System Architecture"]
 
-    A[External Inputs<br><br>• Game Events<br>• Fitness Input<br>• Role Input<br>• External GameTimeIn] --> B[Input Interface]
+    A[External Inputs: Game Events, Fitness Input, Role Input, External GameTimeIn] --> B[Input Interface]
 
-    C[Hardware Clock & Timers<br><br>• 100MHz Clock<br>• Clock Divider (1Hz)<br>• MinutesOnCourt Counters] --> D[Decision Unit]
+    C[Hardware Clock & Timers: 100MHz Clock, Clock Divider, MinutesOnCourt Counters] --> D[Decision Unit]
 
-    B --> E[Momentum Engine<br><br>• Personal Momentum<br>• TeamMomentum<br>• FinalMomentum]
+    B --> E[Momentum Engine: Personal Momentum, Team Momentum, Final Momentum]
 
-    B --> F[Fitness Engine<br><br>• BaseFitness<br>• RoleAdjustedFitness<br>• FinalFitness]
+    B --> F[Fitness Engine: Base Fitness, Role Adjustments, Final Fitness]
 
     E --> D
     F --> D
 
-    D --> G[Output & Display<br><br>• FinalDecisi]()
-
+    D --> G[Output & Display: FinalDecisionScore, Player Status LEDs]
 ```
+
 
 
  
