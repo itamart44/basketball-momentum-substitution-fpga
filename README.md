@@ -1,32 +1,50 @@
-# basketball-momentum-substitution-fpga
-A real-time basketball momentum-based substitution system implemented on Basys3 FPGA.
-# Basketball Momentum Substitution System (Basys3 FPGA)
+# basketball-momentum-substitution-fpga  
+A real-time basketball momentum-based substitution system implemented on the Basys3 FPGA.
 
-Goal:
-A simple home project that calculates real-time positive/negative momentum 
-for basketball players and recommends when a player should rest or stay on the court 
-based on in-game performance and pre-game fitness level.
+## Overview
+This is a personal home project designed to analyze real-time momentum for basketball players
+and recommend when a player should rest or stay on the court.  
+The recommendation is based on two factors:
+1. In-game performance (momentum)
+2. Pre-game fitness and player role (fitness score)
 
-Project Status:
-Idea phase only. The Basys3 board has not arrived yet.
+## Project Goal
+Build an FPGA-based system that receives basketball events as inputs, 
+calculates momentum and fitness in real time, and outputs a substitution recommendation.
 
-Planned Steps:
-- Write an initial project specification
-- Define the momentum calculation algorithm
-- Create a basic architecture diagram
-- Begin development once the Basys3 arrives
+## Current Status
+🟡 **Planning Phase**  
+The Basys3 board has not arrived yet.  
+System logic, formulas, and architecture are currently being designed.
 
-- ## Roadmap
+## Documentation  
+Full details can be found in the `/docs` folder:
 
+- [System Architecture Diagram](docs/system_architecture_v0.md)  
+- [Momentum Formula (v1.1)](docs/momentum_formula_v1.md)  
+- [Fitness Formula (v1.0)](docs/fitness_formula_v1.md)  
+- [Combined Decision Logic (v1.0)](docs/combined_decision_v1.md)
+
+## Planned Development Steps
+- Write full project specification  
+- Finalize momentum calculation algorithm  
+- Finalize fitness model and role adjustments  
+- Build complete architecture diagram  
+- Design first FPGA modules (clock divider, input interface)  
+- Start experiments once Basys3 arrives  
+- Implement momentum calculator in Verilog/VHDL  
+- Add simulation testbench  
+- Integrate all modules  
+- Test on hardware  
+
+## Roadmap
 - [x] Create GitHub repository  
 - [x] Add initial README  
-- [x] Add basic project specification (version 0)  
-- [ ] Define initial momentum formula  
-- [ ] Create architecture diagram  
-- [ ] Design first FPGA modules (clock divider, input unit)  
+- [x] Add basic project specification (v0)  
+- [x] Add momentum, fitness, and decision formulas  
+- [x] Add system architecture diagram (Mermaid)  
+- [ ] Begin module design (clock, input, state machine)  
 - [ ] Start Basys3 experiments when board arrives  
-- [ ] Build momentum calculator in VHDL  
+- [ ] Implement momentum calculator  
 - [ ] Add simulation testbench  
-- [ ] Integrate modules into full system  
-- [ ] Final testing on hardware  
-
+- [ ] Integrate logic and test on hardware  
