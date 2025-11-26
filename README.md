@@ -3,7 +3,8 @@
 
 A real-time basketball momentum & fitness–based substitution analyzer implemented on the Basys3 FPGA.
 
-![Katash Logic Banner](assets/katash_logic_banner.png)
+![Katash Logic Banner](assets/katash_logic_banner.png.png)
+
 
 ## Overview
 Katash Logic – The Bench-O-Meter is a personal home project designed to analyze
