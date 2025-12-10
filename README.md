@@ -3,7 +3,7 @@
 
 A real-time basketball momentum & fitness–based substitution analyzer implemented on the Basys3 FPGA.
 
-![Katash Logic Banner](assets/katash_logic_banner.png)
+![Katash Logic Banner](assets/katash_logic_banner.png.png)
 
 ---
 
@@ -37,12 +37,6 @@ We implemented a simple **clock divider + LED blink** HDL design in VHDL, synthe
 - **top.vhd** — maps `CLK100MHZ`, `btnC`, and drives `LED[0]`  
 - **Basys3.xdc** — correct pin assignments for clock, push button, and LED  
 
-### 📸 Hardware Setup
-(Images placed inside `/assets/`)
-
-![Basys3 setup](assets/basys3_setup_1.jpg)  
-![Basys3 closeup](assets/basys3_setup_2.jpg)
-
 ### 🎉 Result
 LED0 on the Basys3 board blinks at ~1 Hz, confirming:
 
@@ -55,7 +49,7 @@ LED0 on the Basys3 board blinks at ~1 Hz, confirming:
 This marks the **first hardware milestone** of the Bench-O-Meter project.
 
 ### Basys3 Board – First Hardware Bring-Up
-![Basys3 Connected](assets/basys3_connected.jpg)
+![Basys3 Connected](assets/basys3_connected.heic)
 
 
 
