@@ -54,9 +54,9 @@ LED0 on the Basys3 board blinks at ~1 Hz, confirming:
 
 This marks the **first hardware milestone** of the Bench-O-Meter project.
 
-### 🎥 Blink Demo  
-### FPGA LED Blink Demo
-![Blink Demo](assets/blink_demo.gif)
+### Basys3 Board – First Hardware Bring-Up
+![Basys3 Connected](assets/basys3_connected.jpg)
+
 
 
 
