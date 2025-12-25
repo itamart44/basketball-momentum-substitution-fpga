@@ -8,8 +8,8 @@ A real-time basketball momentum & fitness–based substitution analyzer implemen
 ---
 
 ## Overview
-Katash Logic – The Bench-O-Meter is a personal home project designed to analyze
-real-time momentum for basketball players and recommend when a player should rest
+Katash Logic – The Bench-O-Meter is a personal home project designed to analyze  
+real-time momentum for basketball players and recommend when a player should rest  
 or stay on the court.
 
 The system combines:
@@ -21,40 +21,38 @@ Inspired by Oded Katash’s flow-based coaching style.
 ---
 
 ## Project Goal
-Build an FPGA-based system that receives basketball events as inputs, 
+Build an FPGA-based system that receives basketball events as inputs,  
 calculates momentum and fitness in real time, and outputs a substitution recommendation.
 
 ---
 
-## 🚀 Hardware Bring-Up: First Basys3 Test Successful (10 Dec 2025)
+## 🚀 Hardware Bring-Up & Core Logic Validation (Dec 2025)
 
-Today the Basys3 FPGA board arrived, and the first on-board hardware validation was completed.
+The Basys3 FPGA board was successfully connected and fully validated on real hardware.
 
-We implemented a simple **clock divider + LED blink** HDL design in VHDL, synthesized it in Vivado, generated a bitstream, and programmed the FPGA.
+Beyond the initial clock/LED test, the system now implements a **complete event → decode → accumulate pipeline**, verified directly on the FPGA.
 
-### 🔧 What was implemented
-- **clock_divider.vhd** — divides the 100 MHz onboard oscillator down to 1 Hz  
-- **top.vhd** — maps `CLK100MHZ`, `btnC`, and drives `LED[0]`  
-- **Basys3.xdc** — correct pin assignments for clock, push button, and LED  
+### 🔧 What is implemented on hardware
+- Event input via **switches (SW[3:0])**
+- Event trigger via **btnC**
+- Per-player momentum accumulation
+- Reset via **btnU**
+- Multi-player architecture (parallel momentum tracking)
+- Binary momentum display via **LEDs**
+- Correct XDC pin constraints and I/O standards
+- Successful synthesis, implementation, and bitstream programming
 
 ### 🎉 Result
-LED0 on the Basys3 board blinks at ~1 Hz, confirming:
+The Basys3 board correctly reacts to basketball events:
+- Each event updates the selected player’s momentum
+- Reset clears player momentum deterministically
+- Multiple players are handled in parallel
+- All behavior verified live on FPGA hardware
 
-- HDL compilation ✔️  
-- Constraint file correctness ✔️  
-- Bitstream generation ✔️  
-- JTAG communication ✔️  
-- Real hardware execution ✔️  
+This marks the **first full functional hardware milestone** of the Bench-O-Meter project.
 
-This marks the **first hardware milestone** of the Bench-O-Meter project.
-
-### Basys3 Board – First Hardware Bring-Up
+### Basys3 Board – Live Hardware Validation
 ![Basys3 Connected](assets/basys3_connected.heic)
-
-
-
-
-
 
 ---
 
@@ -68,17 +66,17 @@ All detailed documents are available in the `/docs` directory:
 
 ---
 
-## Planned Development Steps
-- Write full project specification  
-- Finalize momentum calculation algorithm  
-- Finalize fitness model and role adjustments  
-- Build complete architecture diagram  
-- Design first FPGA modules (clock, input, state machine)  
-- Start experiments now that the Basys3 has arrived  
-- Implement momentum calculator in VHDL  
-- Add simulation testbench  
-- Integrate all modules  
-- Test on hardware  
+## Current Hardware Status (v0.2)
+
+✔ Event decoding via switches (SW[3:0])  
+✔ Event trigger via btnC  
+✔ Per-player momentum accumulation  
+✔ Multi-player momentum architecture  
+✔ Reset via btnU  
+✔ Binary momentum display on LEDs  
+✔ Verified end-to-end on Basys3 hardware  
+
+This version validates the **full real-time momentum pipeline** on actual FPGA hardware.
 
 ---
 
@@ -88,17 +86,16 @@ All detailed documents are available in the `/docs` directory:
 - [x] Add basic project specification (v0)  
 - [x] Add momentum, fitness, and decision formulas  
 - [x] Add system architecture diagram (Mermaid)  
-- [x] **First FPGA Bring-Up: LED blinking at 1 Hz**  
-- [ ] Begin module design (clock, input, state machine)  
-- [ ] Start extended Basys3 experiments  
-- [ ] Implement momentum calculator  
+- [x] **First FPGA Bring-Up: event decoding & momentum logic verified on hardware**  
+- [x] **Implement momentum calculator (event-based, multi-player)**  
+- [ ] Add team momentum aggregation  
+- [ ] Integrate fitness score comparison  
+- [ ] Implement substitution decision logic  
 - [ ] Add simulation testbench  
-- [ ] Integrate logic and test on hardware  
+- [ ] Extended Basys3 experiments  
+- [ ] Full system integration and testing  
 
 ---
 
 ## License
 MIT License
-
-(Will be added soon — GIF placeholder)
-
