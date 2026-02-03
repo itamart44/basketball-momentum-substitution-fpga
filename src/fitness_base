@@ -1,0 +1,45 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity fitness_base is
+port (
+    fitness0 : out unsigned(9 downto 0);
+    fitness1 : out unsigned(9 downto 0);
+    fitness2 : out unsigned(9 downto 0);
+    fitness3 : out unsigned(9 downto 0)
+);
+end fitness_base;
+
+architecture Behavioral of fitness_base is
+    constant fitness_input0 : unsigned(3 downto 0) := "1000"; -- 8
+    constant fitness_input1 : unsigned(3 downto 0) := "0110"; -- 6
+    constant fitness_input2 : unsigned(3 downto 0) := "0101"; -- 5
+    constant fitness_input3 : unsigned(3 downto 0) := "0100"; -- 4
+
+    signal base0, base1, base2, base3 : unsigned(9 downto 0);
+begin
+    ------------------------------------------------------------------
+    -- BaseFitness = FitnessInput * 5
+    ------------------------------------------------------------------
+    base0 <= (resize(fitness_input0, 10) sll 2) + resize(fitness_input0, 10);
+    base1 <= (resize(fitness_input1, 10) sll 2) + resize(fitness_input1, 10);
+    base2 <= (resize(fitness_input2, 10) sll 2) + resize(fitness_input2, 10);
+    base3 <= (resize(fitness_input3, 10) sll 2) + resize(fitness_input3, 10);
+
+    ------------------------------------------------------------------
+    -- Role-adjusted fitness (FPGA-friendly)
+    ------------------------------------------------------------------
+    -- Player 0: Star (? 1.4)
+    fitness0 <= base0 + (base0 srl 2);
+
+    -- Player 1: Key (? 1.2)
+    fitness1 <= base1 + (base1 srl 3);
+
+    -- Player 2: Role (1.0)
+    fitness2 <= base2;
+
+    -- Player 3: Bench (? 0.8)
+    fitness3 <= base3 - (base3 srl 2);
+
+end Behavioral;
