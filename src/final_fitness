@@ -1,0 +1,29 @@
+
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+entity final_fitness is
+    Port ( 
+            fitness0 : in unsigned(9 downto 0) ;
+            fitness1 : in unsigned(9 downto 0) ; 
+            fitness2 : in unsigned(9 downto 0) ;
+            fitness3 : in unsigned(9 downto 0) ;    
+            relative0 : in signed (11 downto 0);
+            relative1 : in signed (11 downto 0);
+            relative2 : in signed (11 downto 0);
+            relative3 : in signed (11 downto 0);
+           final_fitness0 : out signed (13 downto 0);
+           final_fitness1 : out signed (13 downto 0);
+           final_fitness2 : out signed (13 downto 0);
+           final_fitness3 : out signed (13 downto 0));
+end final_fitness;
+
+architecture Behavioral of final_fitness is
+ 
+begin
+final_fitness0 <= resize(relative0 ,14)+signed(resize(fitness0,14));
+final_fitness1 <= resize(relative1 ,14)+signed(resize(fitness1,14));
+final_fitness2 <= resize(relative2 ,14)+signed(resize(fitness2,14));
+final_fitness3 <= resize(relative3 ,14)+signed(resize(fitness3,14));
+end Behavioral;
