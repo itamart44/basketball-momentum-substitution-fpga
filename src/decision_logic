@@ -1,0 +1,81 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity decision_logic is
+    Port (
+        final_momentum  : in  signed(9 downto 0);
+        final_fitness   : in  signed(13 downto 0);
+        fatigue_penalty : in  signed(7 downto 0);
+
+        warn_foul       : in  std_logic;
+        must_sub_foul   : in  std_logic;
+
+        game_active     : in  std_logic;   -- SW13
+
+        decision_score  : out signed(15 downto 0);
+        hot_player      : out std_logic;
+        suggest_rest    : out std_logic;
+        must_sub        : out std_logic
+    );
+end decision_logic;
+
+architecture Behavioral of decision_logic is
+
+    signal delta    : signed(15 downto 0);
+    signal decision : signed(15 downto 0);
+
+begin
+
+    ------------------------------------------------------------------
+    -- Delta = Momentum - Fitness
+    ------------------------------------------------------------------
+    delta <= resize(final_momentum, 16) - resize(final_fitness, 16);
+
+    ------------------------------------------------------------------
+    -- Final decision score
+    ------------------------------------------------------------------
+    decision <= delta + resize(fatigue_penalty, 16);
+
+    ------------------------------------------------------------------
+    -- Decision logic (gated by game_active)
+    ------------------------------------------------------------------
+    process(final_momentum, final_fitness, fatigue_penalty,
+        warn_foul, must_sub_foul, game_active)
+
+    begin
+        if game_active = '0' then
+            -- Game not active ? no decisions
+            decision_score <= (others => '0');
+            hot_player     <= '0';
+            suggest_rest   <= '0';
+            must_sub       <= '0';
+
+        else
+            decision_score <= decision;
+
+            -- MUST SUB (hard conditions)
+            if (must_sub_foul = '1') or
+               (decision <= to_signed(-20, 16)) then
+                must_sub <= '1';
+            else
+                must_sub <= '0';
+            end if;
+
+            -- SUGGEST REST
+            if decision <= to_signed(-5, 16) then
+                suggest_rest <= '1';
+            else
+                suggest_rest <= '0';
+            end if;
+
+            -- HOT PLAYER
+            if decision >= to_signed(20, 16) then
+                hot_player <= '1';
+            else
+                hot_player <= '0';
+            end if;
+        end if;
+    end process;
+
+end Behavioral;
