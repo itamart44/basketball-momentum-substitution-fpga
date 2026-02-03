@@ -1,0 +1,32 @@
+
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+
+
+entity team_fitness is
+    Port ( fitness0 : in unsigned (9 downto 0);
+           fitness1 : in unsigned (9 downto 0);
+           fitness2 : in unsigned (9 downto 0);
+           fitness3 : in unsigned (9 downto 0);
+            relative0 : out signed (12 downto 0);
+            relative1 : out signed (12 downto 0);
+            relative2 : out signed (12 downto 0);
+            relative3 : out signed (12 downto 0));
+end team_fitness;
+
+architecture Behavioral of team_fitness is
+signal team_sum :  unsigned (11 downto 0);
+begin
+team_sum <= resize(fitness0, 12)
+          + resize(fitness1, 12)
+          + resize(fitness2, 12)
+          + resize(fitness3, 12);
+relative0 <= signed(resize(fitness0, 13) sll 2) - signed(resize(team_sum,13));
+relative1 <= signed(resize(fitness1, 13) sll 2) - signed(resize(team_sum,13));
+relative2 <= signed(resize(fitness2, 13) sll 2) - signed(resize(team_sum,13));
+relative3 <= signed(resize(fitness3, 13) sll 2) - signed(resize(team_sum,13));
+
+end Behavioral;
