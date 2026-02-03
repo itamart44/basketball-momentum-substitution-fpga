@@ -10,7 +10,7 @@ a clear recommendation:
 
 Inspired by Oded Katash’s flow-based coaching philosophy.
 
-![Katash Logic Banner](assets/katash_logic_banner.png)
+![Katash Logic Banner](assets/katash_logic_banner.png.png)
 
 ---
 
