@@ -10,7 +10,13 @@ a clear recommendation:
 
 Inspired by Oded Katash’s flow-based coaching philosophy.
 
-![Katash Logic Banner](assets/katash_logic_banner.png.png)
+![Katash Logic Banner](assets/katash_logic_banner.png)
+
+---
+
+## 🧩 Live FPGA System (Basys3)
+
+![Live Basys3 FPGA Demo](assets/basys3_live.png)
 
 ---
 
@@ -94,9 +100,9 @@ This is **not a simulation-only project** — the full pipeline was validated on
 
 ## 📂 Repository Structure
 
-```text
 assets/
 │── katash_logic_banner.png
+│── basys3_live.png
 │── hardware_photos/
 │
 docs/
@@ -119,16 +125,15 @@ src/
 │
 README.md
 
-
 ---
 
 ## 🎯 Project Scope (Current Status)
 
 This repository represents a **completed learning milestone**:
-- End-to-end real-time system
-- Clean separation of datapath and control
-- Practical FPGA debugging
-- FSM-driven decision logic
+- End-to-end real-time system  
+- Clean separation of datapath and control  
+- Practical FPGA debugging  
+- FSM-driven decision logic  
 
 Future extensions (UI, displays, simulations) were intentionally left out to keep
 the project focused and complete.
@@ -138,4 +143,3 @@ the project focused and complete.
 ## 📜 License
 
 MIT License
-
