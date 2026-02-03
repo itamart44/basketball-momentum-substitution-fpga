@@ -1,0 +1,310 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity top is
+    Port (
+        CLK100MHZ : in  STD_LOGIC;
+        btnC      : in  STD_LOGIC;
+        btnU      : in  STD_LOGIC;
+        btnL      : in  STD_LOGIC;
+        SW        : in  STD_LOGIC_VECTOR (15 downto 0);
+        LED       : out STD_LOGIC_VECTOR (15 downto 0)
+    );
+end top;
+
+architecture Behavioral of top is
+
+-- Global control
+signal game_active : std_logic;
+signal pause_game  : std_logic;
+signal on_court    : std_logic;
+signal reset_n     : std_logic;
+signal on_court_prev : std_logic := '0';
+
+-- Clock / time
+signal tick_game   : std_logic; 
+signal tick_prev   : std_logic := '0';
+signal tick_pulse  : std_logic;   
+
+-- Grace period (סופר שניות אמיתיות)
+signal grace_cnt  : unsigned(2 downto 0) := (others => '0'); -- 0..5
+signal in_grace   : std_logic;
+signal game_active_eff : std_logic;
+
+-- Event layer
+signal event_valid : std_logic;
+signal event_value : signed(7 downto 0);
+signal is_foul     : std_logic;
+
+-- Player select
+signal player_sel : unsigned(1 downto 0);
+
+-- Momentum
+type momentum_array_t is array (0 to 3) of signed(7 downto 0);
+signal momentum_arr  : momentum_array_t := (others => (others => '0'));
+signal event_valid_p : std_logic_vector(0 to 3);
+
+type final_mom_array_t is array (0 to 3) of signed(9 downto 0);
+signal final_mom     : final_mom_array_t;
+signal final_mom_sel : signed(9 downto 0);
+signal rel0_mom, rel1_mom, rel2_mom, rel3_mom : signed(9 downto 0);
+
+-- Fitness
+signal fit0, fit1, fit2, fit3 : unsigned(9 downto 0);
+signal rel0_fit, rel1_fit, rel2_fit, rel3_fit : signed(12 downto 0);
+signal final_fit0, final_fit1, final_fit2, final_fit3 : signed(13 downto 0);
+signal final_fit_sel : signed(13 downto 0);
+
+-- Fouls
+signal foul_sel      : std_logic_vector(4 downto 0);
+signal warn_foul     : std_logic;
+signal must_sub_foul : std_logic;
+
+-- Fatigue
+signal fatigue_penalty : signed(7 downto 0);
+signal fatigue_level   : unsigned(3 downto 0);
+
+-- Decision logic
+signal decision_score    : signed(15 downto 0);
+signal hot_player_dec    : std_logic;
+signal suggest_rest_dec  : std_logic;
+signal must_sub_dec      : std_logic;
+
+-- FSM substitution
+signal fsm_keep    : std_logic;
+signal fsm_suggest : std_logic;
+signal fsm_must    : std_logic;
+
+begin
+
+------------------------------------------------------------------
+-- Switch mapping
+------------------------------------------------------------------
+player_sel  <= unsigned(SW(5 downto 4));
+game_active <= SW(13);
+on_court    <= SW(14);
+pause_game  <= SW(15);
+reset_n     <= not btnU;
+
+------------------------------------------------------------------
+-- Clock divider (1Hz toggle)
+------------------------------------------------------------------
+clock_div_inst : entity work.clock_divider
+    port map (
+        clk_in  => CLK100MHZ,
+        reset_n => reset_n,
+        clk_out => tick_game
+    );
+
+------------------------------------------------------------------
+-- Create 1-cycle pulse on rising edge of tick_game  (NEW)
+------------------------------------------------------------------
+process(CLK100MHZ)
+begin
+    if rising_edge(CLK100MHZ) then
+        tick_prev <= tick_game;
+    end if;
+end process;
+
+tick_pulse <= '1' when (tick_game = '1' and tick_prev = '0') else '0';
+
+------------------------------------------------------------------
+-- Grace period: load 5 and count down each tick_pulse
+------------------------------------------------------------------
+process(CLK100MHZ)
+begin
+    if rising_edge(CLK100MHZ) then
+        on_court_prev <= on_court;
+
+        if btnU = '1' then
+            grace_cnt <= (others => '0');
+
+        elsif (game_active = '0') then
+            grace_cnt <= (others => '0');
+
+        else
+            
+            if (on_court = '1' and on_court_prev = '0') then
+                grace_cnt <= to_unsigned(5, grace_cnt'length);
+
+            elsif tick_pulse = '1' then
+                if grace_cnt > 0 then
+                    grace_cnt <= grace_cnt - 1;
+                end if;
+            end if;
+        end if;
+    end if;
+end process;
+
+in_grace <= '1' when grace_cnt > 0 else '0';
+
+
+------------------------------------------------------------------
+-- Event decoder
+------------------------------------------------------------------
+decoder_inst : entity work.event_decoder
+    port map (
+        clk         => CLK100MHZ,
+        btnC        => btnC,
+        SW          => SW(3 downto 0),
+        event_valid => event_valid,
+        event_value => event_value,
+        is_foul     => is_foul
+    );
+
+------------------------------------------------------------------
+-- Route event to selected player
+------------------------------------------------------------------
+gen_valids : for i in 0 to 3 generate
+    event_valid_p(i) <= event_valid when player_sel = i else '0';
+end generate;
+
+------------------------------------------------------------------
+-- Player momentum
+------------------------------------------------------------------
+gen_players : for i in 0 to 3 generate
+    player_i : entity work.player_momentum
+        port map (
+            clk         => CLK100MHZ,
+            reset       => btnU,
+            event_valid => event_valid_p(i),
+            event_value => event_value,
+            momentum    => momentum_arr(i)
+        );
+end generate;
+
+------------------------------------------------------------------
+-- Team + final momentum
+------------------------------------------------------------------
+team_inst : entity work.team_momentum
+    port map (
+        momentum_arr(0), momentum_arr(1),
+        momentum_arr(2), momentum_arr(3),
+        open,
+        rel0_mom, rel1_mom, rel2_mom, rel3_mom,
+        open
+    );
+
+final0 : entity work.final_momentum port map (momentum_arr(0), rel0_mom, final_mom(0));
+final1 : entity work.final_momentum port map (momentum_arr(1), rel1_mom, final_mom(1));
+final2 : entity work.final_momentum port map (momentum_arr(2), rel2_mom, final_mom(2));
+final3 : entity work.final_momentum port map (momentum_arr(3), rel3_mom, final_mom(3));
+
+with player_sel select
+    final_mom_sel <= final_mom(0) when "00",
+                     final_mom(1) when "01",
+                     final_mom(2) when "10",
+                     final_mom(3) when others;
+
+------------------------------------------------------------------
+-- Fitness
+------------------------------------------------------------------
+fit_base_inst : entity work.fitness_base
+    port map (fit0, fit1, fit2, fit3);
+
+fit_team_inst : entity work.team_fitness
+    port map (fit0, fit1, fit2, fit3,
+              rel0_fit, rel1_fit, rel2_fit, rel3_fit);
+
+fit_final_inst : entity work.final_fitness
+    port map (
+        fit0, fit1, fit2, fit3,
+        rel0_fit(11 downto 0),
+        rel1_fit(11 downto 0),
+        rel2_fit(11 downto 0),
+        rel3_fit(11 downto 0),
+        final_fit0, final_fit1, final_fit2, final_fit3
+    );
+
+with player_sel select
+    final_fit_sel <= final_fit0 when "00",
+                     final_fit1 when "01",
+                     final_fit2 when "10",
+                     final_fit3 when others;
+
+------------------------------------------------------------------
+-- Fouls
+------------------------------------------------------------------
+foul_inst : entity work.foul_count
+    port map (
+        clk        => CLK100MHZ,
+        reset      => btnU,
+        game_time  => "00",
+        is_foul    => is_foul,
+        player_sel => std_logic_vector(player_sel),
+        foul_sel   => foul_sel,
+        warn_foul  => warn_foul,
+        must_sub   => must_sub_foul
+    );
+
+------------------------------------------------------------------
+-- Fatiguetick_pulse tick_game)
+------------------------------------------------------------------
+fatigue_inst : entity work.fatigue_counter
+    port map (
+        clk             => CLK100MHZ,
+        reset           => btnU,
+        tick_game       => tick_pulse,   -- ? פולס אמיתי
+        player_sel      => std_logic_vector(player_sel),
+        on_court        => on_court,
+        pause_game      => pause_game,
+        fatigue_penalty => fatigue_penalty,
+        fatigue_level   => fatigue_level
+    );
+
+------------------------------------------------------------------
+-- Decision logic (gated by game_active_eff)
+------------------------------------------------------------------
+decision_inst : entity work.decision_logic
+    port map (
+       game_active     => game_active,
+        final_momentum  => final_mom_sel,
+        final_fitness   => final_fit_sel,
+        fatigue_penalty => fatigue_penalty,
+        warn_foul       => warn_foul,
+        must_sub_foul   => must_sub_foul,
+        decision_score  => decision_score,
+        hot_player      => hot_player_dec,
+        suggest_rest    => suggest_rest_dec,
+        must_sub        => must_sub_dec
+    );
+
+------------------------------------------------------------------
+------------------------------------------------------------------
+sub_fsm_inst : entity work.substitution_fsm
+    port map (
+        clk           => tick_pulse,  
+         on_court      => on_court, 
+        reset         => btnU,
+        game_active   => game_active,
+        hot_player    => hot_player_dec,
+        suggest_rest  => suggest_rest_dec,
+        must_sub      => must_sub_dec,
+        state_keep    => fsm_keep,
+        state_suggest => fsm_suggest,
+        state_must    => fsm_must
+    );
+
+------------------------------------------------------------------
+-- LED Debug
+------------------------------------------------------------------
+LED(0) <= tick_game;         
+LED(4 downto 1) <= std_logic_vector(fatigue_level); 
+
+LED(9) <= '1' when final_mom_sel > 0 else '0';
+LED(8) <= '1' when final_mom_sel < 0 else '0';
+
+LED(7 downto 5) <= std_logic_vector(final_mom_sel(7 downto 5));
+
+LED(10) <= fsm_keep;     
+LED(11) <= fsm_suggest;  
+LED(12) <= fsm_must;     
+
+LED(13) <= must_sub_dec;       
+LED(14) <= warn_foul;          
+LED(15) <= must_sub_foul;      
+
+
+
+end Behavioral;
