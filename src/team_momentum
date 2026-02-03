@@ -1,0 +1,68 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity team_momentum is
+    port (
+        momentum0  : in  signed(7 downto 0);
+        momentum1  : in  signed(7 downto 0);
+        momentum2  : in  signed(7 downto 0);
+        momentum3  : in  signed(7 downto 0);
+
+        team_sum   : out signed(9 downto 0);
+
+        relative0  : out signed(9 downto 0);
+        relative1  : out signed(9 downto 0);
+        relative2  : out signed(9 downto 0);
+        relative3  : out signed(9 downto 0);
+
+        above_team : out std_logic_vector(3 downto 0)
+    );
+end team_momentum;
+
+architecture Behavioral of team_momentum is
+
+    -- internal signals (מותר לקרוא ולכתוב)
+    signal team_sum_i : signed(9 downto 0);
+
+    signal relative0_i : signed(9 downto 0);
+    signal relative1_i : signed(9 downto 0);
+    signal relative2_i : signed(9 downto 0);
+    signal relative3_i : signed(9 downto 0);
+
+begin
+
+    ------------------------------------------------------------------
+    -- Team sum (internal)
+    ------------------------------------------------------------------
+    team_sum_i <=
+        resize(momentum0, 10) +
+        resize(momentum1, 10) +
+        resize(momentum2, 10) +
+        resize(momentum3, 10);
+
+    team_sum <= team_sum_i;
+
+    ------------------------------------------------------------------
+    -- Relative momentum (internal)
+    ------------------------------------------------------------------
+    relative0_i <= (resize(momentum0, 10) sll 2) - team_sum_i;
+    relative1_i <= (resize(momentum1, 10) sll 2) - team_sum_i;
+    relative2_i <= (resize(momentum2, 10) sll 2) - team_sum_i;
+    relative3_i <= (resize(momentum3, 10) sll 2) - team_sum_i;
+
+    -- drive outputs
+    relative0 <= relative0_i;
+    relative1 <= relative1_i;
+    relative2 <= relative2_i;
+    relative3 <= relative3_i;
+
+    ------------------------------------------------------------------
+    -- Above team flags (משווים signals פנימיים!)
+    ------------------------------------------------------------------
+    above_team(0) <= '1' when relative0_i > to_signed(0, 10) else '0';
+    above_team(1) <= '1' when relative1_i > to_signed(0, 10) else '0';
+    above_team(2) <= '1' when relative2_i > to_signed(0, 10) else '0';
+    above_team(3) <= '1' when relative3_i > to_signed(0, 10) else '0';
+
+end Behavioral;
