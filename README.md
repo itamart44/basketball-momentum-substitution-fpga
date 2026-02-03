@@ -1,101 +1,139 @@
-# KATASH LOGIC  
-## THE BENCH-O-METER  
+# 🏀 Katash Logic – The Bench-O-Meter  
+### FPGA-Based Basketball Substitution Decision System
 
-A real-time basketball momentum & fitness–based substitution analyzer implemented on the Basys3 FPGA.
+A real-time **basketball substitution decision engine** implemented on a **Basys3 FPGA** using **VHDL**.
+
+The project analyzes **player momentum, fatigue, and fouls** in real time and outputs
+a clear recommendation:
+
+**KEEP ON COURT / SUGGEST REST / MUST SUBSTITUTE**
+
+Inspired by Oded Katash’s flow-based coaching philosophy.
 
 ![Katash Logic Banner](assets/katash_logic_banner.png.png)
 
 ---
 
-## Overview
-Katash Logic – The Bench-O-Meter is a personal home project designed to analyze  
-real-time momentum for basketball players and recommend when a player should rest  
-or stay on the court.
+## 🎥 Live FPGA Demonstration
 
-The system combines:
-1. In-game performance (momentum)
-2. Pre-game fitness levels and player roles (fitness score)
+▶️ **Watch the live hardware demo:**  
+https://youtu.be/OXzw-mD9zPI
 
-Inspired by Oded Katash’s flow-based coaching style.
-
----
-
-## Project Goal
-Build an FPGA-based system that receives basketball events as inputs,  
-calculates momentum and fitness in real time, and outputs a substitution recommendation.
+The video shows the full system running **on real FPGA hardware**, including:
+- Event input via switches and buttons  
+- Real-time momentum accumulation  
+- Fatigue build-up and recovery  
+- Foul counting  
+- Decision logic  
+- Substitution finite state machine (FSM)  
+- Visual feedback via onboard LEDs  
 
 ---
 
-## 🚀 Hardware Bring-Up & Core Logic Validation (Dec 2025)
+## 📌 Project Overview
 
-The Basys3 FPGA board was successfully connected and fully validated on real hardware.
+**Katash Logic – The Bench-O-Meter** is a personal FPGA project designed to explore
+how real-time hardware logic can support coaching decisions.
 
-Beyond the initial clock/LED test, the system now implements a **complete event → decode → accumulate pipeline**, verified directly on the FPGA.
+The system answers a single question:
 
-### 🔧 What is implemented on hardware
-- Event input via **switches (SW[3:0])**
-- Event trigger via **btnC**
-- Per-player momentum accumulation
-- Reset via **btnU**
-- Multi-player architecture (parallel momentum tracking)
-- Binary momentum display via **LEDs**
-- Correct XDC pin constraints and I/O standards
-- Successful synthesis, implementation, and bitstream programming
+> *Should this player stay on the court, rest, or be substituted?*
 
-### 🎉 Result
-The Basys3 board correctly reacts to basketball events:
-- Each event updates the selected player’s momentum
-- Reset clears player momentum deterministically
-- Multiple players are handled in parallel
-- All behavior verified live on FPGA hardware
-
-This marks the **first full functional hardware milestone** of the Bench-O-Meter project.
-
-### Basys3 Board – Live Hardware Validation
-![Basys3 Connected](assets/basys3_connected.heic)
+All decisions are made **fully in hardware**, without a CPU or software loop.
 
 ---
 
-## Documentation  
-All detailed documents are available in the `/docs` directory:
+## 🧠 What the System Evaluates
 
-- [System Architecture Diagram](docs/system_architecture_v0.md)  
-- [Momentum Formula (v1.1)](docs/momentum_formula_v1.md)  
-- [Fitness Formula (v1.0)](docs/fitness_formula_v1.md)  
-- [Combined Decision Logic (v1.0)](docs/combined_decision_v1.md)
+The substitution decision is based on:
 
----
+- **Momentum**  
+  Accumulated from positive and negative basketball events
 
-## Current Hardware Status (v0.2)
+- **Fatigue**  
+  Time-based accumulation while on court, with gradual recovery during rest
 
-✔ Event decoding via switches (SW[3:0])  
-✔ Event trigger via btnC  
-✔ Per-player momentum accumulation  
-✔ Multi-player momentum architecture  
-✔ Reset via btnU  
-✔ Binary momentum display on LEDs  
-✔ Verified end-to-end on Basys3 hardware  
+- **Fouls**  
+  Per-player foul counting with warning and forced-substitution thresholds
 
-This version validates the **full real-time momentum pipeline** on actual FPGA hardware.
+- **Game State**  
+  Active / paused / player on court
+
+- **Grace Period**  
+  Short stabilization window after entering the court
 
 ---
 
-## Roadmap
-- [x] Create GitHub repository  
-- [x] Add initial README  
-- [x] Add basic project specification (v0)  
-- [x] Add momentum, fitness, and decision formulas  
-- [x] Add system architecture diagram (Mermaid)  
-- [x] **First FPGA Bring-Up: event decoding & momentum logic verified on hardware**  
-- [x] **Implement momentum calculator (event-based, multi-player)**  
-- [ ] Add team momentum aggregation  
-- [ ] Integrate fitness score comparison  
-- [ ] Implement substitution decision logic  
-- [ ] Add simulation testbench  
-- [ ] Extended Basys3 experiments  
-- [ ] Full system integration and testing  
+## ⚙️ Implemented on Hardware
+
+All of the following are implemented, synthesized, and tested on a **Basys3 FPGA**:
+
+✔ Event decoder (edge-safe)  
+✔ Per-player momentum accumulation (parallel)  
+✔ Fatigue counter (time-based)  
+✔ Foul counter  
+✔ Multi-factor decision logic  
+✔ Substitution finite state machine (FSM)  
+✔ Grace period handling  
+✔ LED-based live visualization  
+
+This is **not a simulation-only project** — the full pipeline was validated on real hardware.
 
 ---
 
-## License
+## 🧪 Hardware Behavior Highlights
+
+- Positive actions increase player momentum  
+- Fatigue increases while a player is on the court  
+- Fatigue decreases while resting  
+- Fouls trigger warnings and forced substitution  
+- FSM transitions are deterministic and explainable  
+- System stabilizes after substitutions using a grace window  
+
+---
+
+## 📂 Repository Structure
+
+```text
+assets/
+│── katash_logic_banner.png
+│── hardware_photos/
+│
+docs/
+│── momentum_formula_v1.md
+│── fitness_formula_v1.md
+│── combined_decision_v1.md
+│── system_architecture.md
+│
+src/
+│── top.vhd
+│── event_decoder.vhd
+│── player_momentum.vhd
+│── team_momentum.vhd
+│── final_momentum.vhd
+│── fatigue_counter.vhd
+│── foul_count.vhd
+│── decision_logic.vhd
+│── substitution_fsm.vhd
+│── clock_divider.vhd
+│
+README.md
+
+---
+
+## 🎯 Project Scope (Current Status)
+
+This repository represents a **completed learning milestone**:
+- End-to-end real-time system
+- Clean separation of datapath and control
+- Practical FPGA debugging
+- FSM-driven decision logic
+
+Future extensions (UI, displays, simulations) were intentionally left out to keep
+the project focused and complete.
+
+---
+
+## 📜 License
+
 MIT License
