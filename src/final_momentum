@@ -1,0 +1,19 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity final_momentum is
+    port (
+        personal_in : in  signed(7 downto 0);   -- PersonalMomentum
+        relative_in : in  signed(9 downto 0);   -- TeamRelativeMomentum
+        final_out   : out signed(9 downto 0)    -- FinalMomentum
+    );
+end final_momentum;
+
+architecture Behavioral of final_momentum is
+begin
+
+    -- FinalMomentum = Personal + Relative
+    final_out <= resize(personal_in, 10) + relative_in;
+
+end Behavioral;
