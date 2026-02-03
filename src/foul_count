@@ -1,0 +1,74 @@
+
+
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity foul_count is
+    Port ( clk : in STD_LOGIC;
+           reset : in STD_LOGIC;
+           game_time : in STD_LOGIC_VECTOR (1 downto 0);
+           is_foul : in STD_LOGIC;
+           player_sel : in STD_LOGIC_VECTOR (1 downto 0);
+           warn_foul : out STD_LOGIC;
+           must_sub : out STD_LOGIC;
+           foul_sel : out STD_LOGIC_VECTOR (4 downto 0)
+           );
+end foul_count;
+
+architecture Behavioral of foul_count is
+type foul_array_t is array (0 to 3) of unsigned(4 downto 0);
+signal foul_cnt : foul_array_t := (others => (others => '0'));
+
+ signal sel_idx : integer range 0 to 3;
+
+begin
+sel_idx <= to_integer(unsigned(player_sel));
+ process(clk)
+    begin
+        if rising_edge(clk) then
+        if reset = '1' then
+          foul_cnt <= (others => (others => '0'));
+             else
+                if is_foul = '1' then
+                    foul_cnt(sel_idx) <= foul_cnt(sel_idx) + 1;
+                end if;
+            end if;
+        end if;
+    end process;
+     process(foul_cnt, sel_idx, game_time, reset)
+    variable f : unsigned(4 downto 0);
+begin
+    -- defaults (ALWAYS)
+    warn_foul <= '0';
+    must_sub  <= '0';
+
+    if reset = '1' then
+        -- nothing else, outputs stay 0
+        null;
+    else
+        f := foul_cnt(sel_idx);
+
+        -- First half
+        if (game_time = "00") or (game_time = "01") then
+            if f >= 3 then
+                warn_foul <= '1';
+            end if;
+            if f >= 4 then
+                must_sub <= '1';
+            end if;
+
+        -- Second half
+        elsif (game_time = "10") or (game_time = "11") then
+            if f >= 4 then
+                warn_foul <= '1';
+            end if;
+        end if;
+    end if;
+end process;
+
+          
+
+
+end Behavioral;
