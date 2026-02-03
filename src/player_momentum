@@ -1,0 +1,32 @@
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity player_momentum is
+    Port ( clk : in STD_LOGIC;
+           reset : in STD_LOGIC;
+           event_valid : in STD_LOGIC;
+           event_value : in signed(7 downto 0);
+           momentum : out signed(7 downto 0));
+           
+end player_momentum;
+
+architecture Behavioral of player_momentum is
+signal momentum_reg : signed(7 downto 0) := (others => '0');
+begin
+
+   process(clk)
+    begin
+    if rising_edge(clk) then
+     if (reset = '1')then
+       momentum_reg  <= (others => '0');
+       elsif event_valid = '1' then
+       momentum_reg <= momentum_reg + event_value;
+    end if;
+     end if;      
+   end process;
+   
+momentum <= momentum_reg ; 
+
+end Behavioral;
