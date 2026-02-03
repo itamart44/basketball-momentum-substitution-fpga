@@ -1,0 +1,74 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity event_decoder is
+    Port (
+        clk         : in  STD_LOGIC;
+        btnC        : in  STD_LOGIC;
+        SW          : in  STD_LOGIC_VECTOR (3 downto 0);
+        event_valid : out STD_LOGIC;
+        event_value : out SIGNED (7 downto 0);
+        is_foul     : out STD_LOGIC
+    );
+end event_decoder;
+
+architecture Behavioral of event_decoder is
+    -- Synchronization
+    signal btnC_sync1 : STD_LOGIC := '0';
+    signal btnC_sync2 : STD_LOGIC := '0';
+    signal btnC_prev  : STD_LOGIC := '0';
+begin
+
+   process(clk)
+begin
+    if rising_edge(clk) then
+
+        -- default outputs EVERY CLOCK
+        event_valid <= '0';
+        event_value <= to_signed(0, 8);
+        is_foul     <= '0';
+
+        -- Synchronize button
+        btnC_sync1 <= btnC;
+        btnC_sync2 <= btnC_sync1;
+
+        -- Edge detection
+        if (btnC_sync2 = '1' and btnC_prev = '0') then
+            event_valid <= '1';
+
+            case SW is
+                when "0000" => event_value <= to_signed( 1, 8);
+                when "0001" => event_value <= to_signed( 3, 8);
+                when "0010" => event_value <= to_signed( 4, 8);
+                when "0011" => event_value <= to_signed( 2, 8);
+                when "0100" => event_value <= to_signed( 2, 8);
+                when "0101" => event_value <= to_signed( 1, 8);
+                when "0110" => event_value <= to_signed( 3, 8);
+                when "0111" => event_value <= to_signed( 2, 8);
+                when "1000" => event_value <= to_signed( 1, 8);
+                when "1001" => event_value <= to_signed( 1, 8);
+                when "1010" => event_value <= to_signed(-1, 8);
+                when "1011" => event_value <= to_signed(-2, 8);
+
+                when "1100" =>  -- regular foul
+                    event_value <= to_signed(-1, 8);
+                    is_foul <= '1';
+
+                when "1101" =>  -- offensive foul
+                    event_value <= to_signed(-3, 8);
+                    is_foul <= '1';
+
+                when others =>
+                    event_value <= to_signed(0, 8);
+            end case;
+        end if;
+
+        -- Save previous state
+        btnC_prev <= btnC_sync2;
+
+    end if;
+end process;
+
+
+end Behavioral;
