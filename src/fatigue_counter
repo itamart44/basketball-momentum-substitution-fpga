@@ -1,0 +1,82 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity fatigue_counter is
+    Port (
+        clk             : in  STD_LOGIC;
+        reset           : in  STD_LOGIC;
+
+        tick_game       : in  STD_LOGIC;                
+        player_sel      : in  STD_LOGIC_VECTOR(1 downto 0);
+        on_court        : in  STD_LOGIC;                 
+        pause_game      : in  STD_LOGIC;
+
+        fatigue_penalty : out SIGNED(7 downto 0);       
+        fatigue_level   : out unsigned(3 downto 0)       
+    );
+end fatigue_counter;
+
+architecture Behavioral of fatigue_counter is
+
+    type fatigue_array_t is array (0 to 3) of unsigned(3 downto 0);
+    signal fatigue_cnt : fatigue_array_t := (others => (others => '0'));
+
+    signal sel_idx   : integer range 0 to 3;
+    signal tick_prev : STD_LOGIC := '0';
+
+begin
+
+  
+    sel_idx <= to_integer(unsigned(player_sel));
+
+    
+    process(clk)
+    begin
+        if rising_edge(clk) then
+            if reset = '1' then
+                fatigue_cnt <= (others => (others => '0'));
+                tick_prev   <= '0';
+
+            else
+                
+                if tick_game = '1' and tick_prev = '0' then
+
+                  
+                    if (on_court = '1') and (pause_game = '0') then
+                        if fatigue_cnt(sel_idx) < 15 then
+                            fatigue_cnt(sel_idx) <= fatigue_cnt(sel_idx) + 1;
+                        end if;
+
+                    
+                    else
+                        if fatigue_cnt(sel_idx) > 0 then
+                            fatigue_cnt(sel_idx) <= fatigue_cnt(sel_idx) - 1;
+                        end if;
+                    end if;
+
+                end if;
+
+                tick_prev <= tick_game;
+            end if;
+        end if;
+    end process;
+
+    
+    process(fatigue_cnt, sel_idx)
+        variable f : unsigned(3 downto 0);
+    begin
+        f := fatigue_cnt(sel_idx);
+
+        if f >= 12 then
+            fatigue_penalty <= to_signed(-10, 8);
+        elsif f >= 7 then
+            fatigue_penalty <= to_signed(-5, 8);
+        else
+            fatigue_penalty <= to_signed(0, 8);
+        end if;
+
+        fatigue_level <= f;
+    end process;
+
+end Behavioral;
