@@ -1,0 +1,38 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity clock_divider is
+    Port (
+        clk_in  : in  STD_LOGIC;
+        reset_n : in  STD_LOGIC;     -- ACTIVE LOW RESET
+        clk_out : out STD_LOGIC
+    );
+end clock_divider;
+
+architecture Behavioral of clock_divider is
+
+    signal counter : unsigned(25 downto 0) := (others => '0');
+    signal clk_reg : STD_LOGIC := '0';
+
+begin
+
+    process(clk_in, reset_n)
+    begin
+        if reset_n = '0' then                 -- RESET PRESSED
+            counter <= (others => '0');
+            clk_reg <= '0';
+
+        elsif rising_edge(clk_in) then
+            counter <= counter + 1;
+
+            if counter = 50_000_000 then      -- 1Hz toggle @100MHz
+                clk_reg <= not clk_reg;
+                counter <= (others => '0');
+            end if;
+        end if;
+    end process;
+
+    clk_out <= clk_reg;
+
+end Behavioral;
